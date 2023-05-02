@@ -16,34 +16,99 @@ struct MyStringHash {
             generateRValues();
         }
     }
-    // hash function entry point (i.e. this is h(k))
+
     HASH_INDEX_T operator()(const std::string& k) const
     {
         // Add your code here
+       
+        unsigned long long total = 0;
+         std::string temp = k;
+        HASH_INDEX_T str_size = k.size();
+        int a_val;
+        size_t arr[5];
 
+        switch (str_size)
+      {
+      case 6:
+          for (size_t i = 0; i < 6; i++)
+          {
+              a_val = letterDigitToNumber(k[i]);
+              total = (total * 36) + a_val;
+          }
+          total = total * rValues[4];
+          return total;
+
+      default:
+          if (str_size < 6)
+          {
+              temp.append(6 - str_size, '!');
+
+              for (size_t i = 0; i < 6; i++)
+              {
+                  if (temp[i] != '!')
+                  {
+                      a_val = letterDigitToNumber(k[i]);
+                      total = (total * 36) + a_val;
+                  }
+                  else
+                  {
+                      break;
+                  }
+              }
+              total = total * rValues[4];
+              return total;
+          }
+          else
+          {
+              unsigned long long final_total = 0;
+              temp.insert(0, 30 - str_size, '!');
+              std::cout << temp << std::endl;
+
+              for (size_t i = 0; i < 5; i++)
+              {
+                  for (size_t j = 6 * i; j < 6 * (i + 1); j++)
+                  {
+                      a_val = temp[j] != '!' ? letterDigitToNumber(temp[j]) : 0;
+                      total = (total * 36) + a_val;
+                  }
+                  arr[i] = total;
+                  total = 0;
+              }
+
+              for (size_t i = 0; i < 5; i++)
+              {
+                  final_total += arr[i] * rValues[i];
+              }
+
+              return final_total;
+          }
+      }
 
     }
 
-    // A likely helper function is to convert a-z,0-9 to an integral value 0-35
-    HASH_INDEX_T letterDigitToNumber(char letter) const
-    {
-        // Add code here or delete this helper function if you do not want it
-
-    }
-
-    // Code to generate the random R values
     void generateRValues()
     {
-        // obtain a seed from the system clock:
         unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-        std::mt19937 generator (seed);  // mt19937 is a standard random number generator
-
-        // Simply call generator() [it has an operator()] to get another random number
+        std::mt19937 generator (seed);  
+        
         for(int i{ 0 }; i < 5; ++i)
         {
             rValues[i] = generator();
         }
     }
-};
+   
+    HASH_INDEX_T letterDigitToNumber(char letter) const
+    {
+        
+        char adj_letter = tolower(letter);
+        if (adj_letter <= 'z' && adj_letter >= 'a'){
+            return adj_letter = adj_letter - 'a';
+        }else if(adj_letter <= '9' && adj_letter >= '0'){
+            return adj_letter - '0' + 26;
+        }
+        return 0;
+    }
 
+
+};
 #endif
